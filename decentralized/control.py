@@ -250,11 +250,11 @@ def solve_centralized_rhc(problem, x0, N, step_size=1, J_converge=1.0, **kwargs)
     Ui = np.zeros((N, n_u))
     controller = ilqrSolver(problem, N)
 
-    J = np.inf
+    J_final = np.inf
     X_full = np.zeros((0, n_x))
     U_full = np.zeros((0, n_u))
-
-    while J >= J_converge:
+    
+    while J_final >= J_converge:
 
         X, Ui, J = controller.solve(xi, Ui, **kwargs)
 
@@ -263,7 +263,9 @@ def solve_centralized_rhc(problem, x0, N, step_size=1, J_converge=1.0, **kwargs)
 
         xi = X[step_size]
         Ui = np.vstack([Ui[step_size:], np.zeros((step_size, n_u))])
-
+        
+        J_final = controller.cost(xi, Ui[step_size-1], terminal=True)[0]
+        print(J_final)
     return X_full, U_full, J
 
 
